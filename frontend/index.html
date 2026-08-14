@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>YouTube MP4 Downloader</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+body {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: #f4f6f8;
+}
+
+.card {
+
+    width:
+        calc(100% - 32px);
+
+    max-width:
+        500px;
+
+    padding:
+        32px;
+
+    background:
+        white;
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0,0,0,0.08);
+}
+
+h1 {
+
+    margin-top: 0;
+
+    text-align:
+        center;
+
+    color:
+        #1e293b;
+}
+
+.description {
+
+    text-align:
+        center;
+
+    color:
+        #64748b;
+
+    font-size:
+        14px;
+
+    margin-bottom:
+        24px;
+}
+
+input {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius:
+        8px;
+
+    font-size:
+        15px;
+
+    outline: none;
+
+    margin-bottom:
+        12px;
+}
+
+button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background:
+        #2563eb;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+button:hover {
+
+    background:
+        #1d4ed8;
+}
+
+button:disabled {
+
+    background:
+        #94a3b8;
+
+    cursor:
+        not-allowed;
+}
+
+
+/* =====================================================
+   QUALITY
+===================================================== */
+
+#qualitySection {
+
+    display: none;
+
+    margin-top: 20px;
+}
+
+.quality-title {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #334155;
+
+    margin-bottom: 10px;
+}
+
+.qualities {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+}
+
+.quality {
+
+    padding: 12px 8px;
+
+    background: #f8fafc;
+
+    color: #334155;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.quality:hover {
+
+    border-color:
+        #2563eb;
+}
+
+.quality.selected {
+
+    background:
+        #2563eb;
+
+    color: white;
+
+    border-color:
+        #2563eb;
+}
+
+
+/* =====================================================
+   PROGRESS
+===================================================== */
+
+#progressContainer {
+
+    display: none;
+
+    margin-top: 20px;
+}
+
+.progress-background {
+
+    width: 100%;
+
+    height: 10px;
+
+    background:
+        #e2e8f0;
+
+    border-radius:
+        10px;
+
+    overflow:
+        hidden;
+}
+
+.progress-bar {
+
+    width: 0%;
+
+    height: 100%;
+
+    background:
+        #2563eb;
+
+    transition:
+        width 0.25s ease;
+}
+
+.progress-info {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    margin-top:
+        8px;
+
+    font-size:
+        12px;
+
+    color:
+        #64748b;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status {
+
+    margin-top:
+        16px;
+
+    min-height:
+        20px;
+
+    text-align:
+        center;
+
+    font-size:
+        14px;
+
+    color:
+        #64748b;
+}
+
+.success {
+
+    color:
+        #16a34a;
+}
+
+.error {
+
+    color:
+        #dc2626;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+    <h1>
+        YouTube Video Downloader
+    </h1>
+
+
+    <p class="description">
+        Select your preferred video quality.
+    </p>
+
+
+    <!-- URL -->
+
+    <input
+        id="videoUrl"
+        type="text"
+        placeholder="Paste YouTube URL..."
+    >
+
+
+    <button
+        id="checkButton"
+        onclick="checkFormats()"
+    >
+        Check Available Qualities
+    </button>
+
+
+    <!-- QUALITY -->
+
+    <div
+        id="qualitySection"
+    >
+
+        <div class="quality-title">
+            Select quality
+        </div>
+
+
+        <div
+            id="qualities"
+            class="qualities"
+        ></div>
+
+
+        <br>
+
+
+        <button
+            id="downloadButton"
+            onclick="startDownload()"
+            disabled
+        >
+            Download MP4
+        </button>
+
+    </div>
+
+
+    <!-- PROGRESS -->
+
+    <div
+        id="progressContainer"
+    >
+
+        <div class="progress-background">
+
+            <div
+                id="progressBar"
+                class="progress-bar"
+            ></div>
+
+        </div>
+
+
+        <div class="progress-info">
+
+            <span id="percent">
+                0%
+            </span>
+
+            <span id="speed">
+            </span>
+
+            <span id="eta">
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="status"
+        class="status"
+    ></div>
+
+</div>
+
+
+<script>
+
+let selectedQuality = null;
+
+let currentDownloadId = null;
+
+let progressTimer = null;
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function setStatus(
+    message,
+    type = ""
+) {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+    status.textContent =
+        message;
+
+    status.className =
+        "status " + type;
+}
+
+
+// ============================================================
+// CHECK FORMATS
+// ============================================================
+
+async function checkFormats() {
+
+    const url =
+        document
+        .getElementById(
+            "videoUrl"
+        )
+        .value
+        .trim();
+
+
+    if (!url) {
+
+        setStatus(
+            "Please enter a YouTube URL.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "checkButton"
+        );
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "Checking...";
+
+
+    setStatus(
+        "Checking available qualities..."
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/formats",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            url: url
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Could not get formats."
+            );
+        }
+
+
+        displayQualities(
+            data.qualities
+        );
+
+
+        setStatus(
+            "Select a quality."
+        );
+
+    }
+
+    catch (error) {
+
+        setStatus(
+            "Error: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+    finally {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "Check Available Qualities";
+    }
+}
+
+
+// ============================================================
+// DISPLAY QUALITIES
+// ============================================================
+
+function displayQualities(
+    qualities
+) {
+
+    const container =
+        document.getElementById(
+            "qualities"
+        );
+
+
+    container.innerHTML = "";
+
+
+    selectedQuality =
+        null;
+
+
+    document
+        .getElementById(
+            "downloadButton"
+        )
+        .disabled =
+        true;
+
+
+    qualities.forEach(
+        quality => {
+
+            const button =
+                document.createElement(
+                    "div"
+                );
+
+
+            button.className =
+                "quality";
+
+
+            button.textContent =
+                quality.label;
+
+
+            button.onclick =
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".quality"
+                        )
+                        .forEach(
+                            element => {
+
+                                element
+                                    .classList
+                                    .remove(
+                                        "selected"
+                                    );
+                            }
+                        );
+
+
+                    button
+                        .classList
+                        .add(
+                            "selected"
+                        );
+
+
+                    selectedQuality =
+                        quality.height;
+
+
+                    document
+                        .getElementById(
+                            "downloadButton"
+                        )
+                        .disabled =
+                        false;
+
+                };
+
+
+            container.appendChild(
+                button
+            );
+
+        }
+    );
+
+
+    document
+        .getElementById(
+            "qualitySection"
+        )
+        .style.display =
+        "block";
+}
+
+
+// ============================================================
+// START DOWNLOAD
+// ============================================================
+
+async function startDownload() {
+
+    const url =
+        document
+        .getElementById(
+            "videoUrl"
+        )
+        .value
+        .trim();
+
+
+    if (!selectedQuality) {
+
+        setStatus(
+            "Select a quality first.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "downloadButton"
+        );
+
+
+    button.disabled =
+        true;
+
+
+    setStatus(
+        `Starting ${selectedQuality}p download...`
+    );
+
+
+    document
+        .getElementById(
+            "progressContainer"
+        )
+        .style.display =
+        "block";
+
+
+    setProgress(0);
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/start-download",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            url:
+                                url,
+
+                            quality:
+                                selectedQuality
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Could not start download."
+            );
+        }
+
+
+        currentDownloadId =
+            data.download_id;
+
+
+        monitorProgress();
+
+    }
+
+    catch (error) {
+
+        setStatus(
+            "Error: " +
+            error.message,
+            "error"
+        );
+
+
+        button.disabled =
+            false;
+    }
+}
+
+
+// ============================================================
+// MONITOR
+// ============================================================
+
+function monitorProgress() {
+
+    if (progressTimer) {
+
+        clearInterval(
+            progressTimer
+        );
+    }
+
+
+    progressTimer =
+        setInterval(
+            checkProgress,
+            500
+        );
+
+
+    checkProgress();
+}
+
+
+// ============================================================
+// CHECK PROGRESS
+// ============================================================
+
+async function checkProgress() {
+
+    if (!currentDownloadId) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/progress/${currentDownloadId}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+        }
+
+
+        setProgress(
+            data.percent
+        );
+
+
+        document
+            .getElementById(
+                "speed"
+            )
+            .textContent =
+            data.speed || "";
+
+
+        document
+            .getElementById(
+                "eta"
+            )
+            .textContent =
+            data.eta
+                ? "ETA " + data.eta
+                : "";
+
+
+        if (
+            data.status ===
+            "starting"
+        ) {
+
+            setStatus(
+                "Preparing video..."
+            );
+        }
+
+
+        else if (
+            data.status ===
+            "downloading"
+        ) {
+
+            setStatus(
+                "Downloading..."
+            );
+        }
+
+
+        else if (
+            data.status ===
+            "merging"
+        ) {
+
+            setStatus(
+                "Merging video and audio..."
+            );
+        }
+
+
+        else if (
+            data.status ===
+            "completed"
+        ) {
+
+            clearInterval(
+                progressTimer
+            );
+
+
+            setProgress(
+                100
+            );
+
+
+            setStatus(
+                "Download completed.",
+                "success"
+            );
+
+
+            downloadFile(
+                currentDownloadId
+            );
+
+
+            document
+                .getElementById(
+                    "downloadButton"
+                )
+                .disabled =
+                false;
+
+
+            currentDownloadId =
+                null;
+        }
+
+
+        else if (
+            data.status ===
+            "error"
+        ) {
+
+            clearInterval(
+                progressTimer
+            );
+
+
+            setStatus(
+                "Error: " +
+                data.error,
+                "error"
+            );
+
+
+            document
+                .getElementById(
+                    "downloadButton"
+                )
+                .disabled =
+                false;
+
+
+            currentDownloadId =
+                null;
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+// ============================================================
+// DOWNLOAD FILE
+// ============================================================
+
+function downloadFile(
+    id
+) {
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        `/download-file/${id}`;
+
+
+    link.style.display =
+        "none";
+
+
+    document
+        .body
+        .appendChild(
+            link
+        );
+
+
+    link.click();
+
+
+    link.remove();
+}
+
+
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+
+function setProgress(
+    value
+) {
+
+    const percentage =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                value || 0
+            )
+        );
+
+
+    document
+        .getElementById(
+            "progressBar"
+        )
+        .style.width =
+        percentage + "%";
+
+
+    document
+        .getElementById(
+            "percent"
+        )
+        .textContent =
+        percentage.toFixed(1) +
+        "%";
+}
+
+</script>
+
+
+</body>
+
+</html>
