@@ -99,6 +99,3 @@ YOUTUBE_COOKIES=<optional>
 
 This project is intended for **personal and educational use**. Users are responsible for complying with YouTube's Terms of Service, copyright laws, and applicable local regulations. Only download content you are legally permitted to download.
 
-## 📄 License
-
-Add your preferred license here, such as **MIT License**.
