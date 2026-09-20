@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube MP4 & MP3 Downloader</title>
+    <meta name="description" content="Fast, high-quality YouTube to MP4 video and MP3 audio converter and downloader.">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 16px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            padding: 32px;
+            background: #1e293b;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid #334155;
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .description {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            background: #0f172a;
+            color: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #3b82f6;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* VIDEO PREVIEW */
+        #videoPreview {
+            display: none;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        #videoPreview img {
+            width: 110px;
+            height: 62px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .video-meta {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .video-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f8fafc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-author {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* FORMAT TABS */
+        #formatSelection {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .format-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            background: #0f172a;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .quality-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .qualities-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quality-card {
+            padding: 12px 6px;
+            background: #0f172a;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .quality-card:hover {
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .quality-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* PROGRESS CONTAINER */
+        #progressContainer {
+            display: none;
+            margin-top: 20px;
+            background: #0f172a;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .progress-background {
+            width: 100%;
+            height: 10px;
+            background: #334155;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 10px;
+            transition: width 0.25s ease;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* STATUS */
+        .status {
+            margin-top: 16px;
+            min-height: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .status.success {
+            color: #22c55e;
+            font-weight: 500;
+        }
+
+        .status.error {
+            color: #ef4444;
+            font-weight: 500;
+        }
+
+        @media (max-width: 500px) {
+            .card {
+                padding: 20px;
+            }
+            .qualities-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h1>
+            <span>⚡ YouTube Converter</span>
+        </h1>
+        <p class="description">
+            Download high-quality MP4 video or fast MP3 audio directly.
+        </p>
+
+        <!-- URL INPUT -->
+        <div class="input-group">
+            <input id="videoUrl" type="text" placeholder="Paste YouTube link (e.g. https://youtu.be/...)" autocomplete="off">
+            <button id="checkButton" onclick="checkFormats()">Fetch Formats</button>
+        </div>
+
+        <!-- VIDEO PREVIEW -->
+        <div id="videoPreview" style="display:none;">
+            <img id="previewThumb" src="" alt="Thumbnail">
+            <div class="video-meta">
+                <div id="previewTitle" class="video-title"></div>
+                <div id="previewAuthor" class="video-author"></div>
+            </div>
+        </div>
+
+        <!-- FORMATS & QUALITY SELECTION -->
+        <div id="formatSelection">
+            <div class="format-tabs">
+                <button type="button" id="tabMp4" class="tab-btn active" onclick="switchMediaType('mp4')">🎬 MP4 Video</button>
+                <button type="button" id="tabMp3" class="tab-btn" onclick="switchMediaType('mp3')">🎵 MP3 Audio</button>
+            </div>
+
+            <div class="quality-title" id="qualitySectionHeader">Select Video Quality</div>
+            <div id="qualitiesGrid" class="qualities-grid"></div>
+
+            <button id="downloadButton" onclick="startDownload()" disabled>Download</button>
+        </div>
+
+        <!-- PROGRESS -->
+        <div id="progressContainer">
+            <div class="progress-background">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div class="progress-info">
+                <span id="percent">0%</span>
+                <span id="speed"></span>
+                <span id="eta"></span>
+            </div>
+        </div>
+
+        <!-- STATUS -->
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // API Base URL: Defaults to relative path for unified deployment (Render/Railway/Fly.io),
+        // with fallback to port 5000 if opened directly as a file://.
+        const API_URL = (window.location.protocol.startsWith("http")) ? "" : "http://127.0.0.1:5000";
+
+        let currentMediaType = "mp4";
+        let selectedQuality = null;
+        let currentDownloadId = null;
+        let progressTimer = null;
+        let availableData = null;
+
+        async function getJSON(response) {
+            const text = await response.text();
+            let data = {};
+            if (text.trim()) {
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    console.error("Invalid JSON:", text);
+                    throw new Error(`Server returned invalid response (${response.status})`);
+                }
+            }
+            if (!response.ok) {
+                throw new Error(data.error || `Server error (${response.status})`);
+            }
+            return data;
+        }
+
+        function setStatus(msg, type = "") {
+            const status = document.getElementById("status");
+            status.textContent = msg;
+            status.className = "status " + type;
+        }
+
+        async function checkFormats() {
+            const url = document.getElementById("videoUrl").value.trim();
+            if (!url) {
+                setStatus("Please enter a YouTube URL.", "error");
+                return;
+            }
+
+            const button = document.getElementById("checkButton");
+            button.disabled = true;
+            button.textContent = "Analyzing Video...";
+            document.getElementById("formatSelection").style.display = "none";
+            document.getElementById("videoPreview").style.display = "none";
+            setStatus("Extracting video formats...");
+
+            try {
+                const response = await fetch(`${API_URL}/api/formats`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await getJSON(response);
+                availableData = data;
+
+                // Populate video preview
+                document.getElementById("previewTitle").textContent = data.title || "YouTube Video";
+                document.getElementById("previewAuthor").textContent = `${data.uploader || ""} • ${data.duration || ""}`.trim();
+                if (data.thumbnail) {
+                    document.getElementById("previewThumb").src = data.thumbnail;
+                }
+                document.getElementById("videoPreview").style.display = "flex";
+
+                // Render options
+                switchMediaType(currentMediaType);
+                document.getElementById("formatSelection").style.display = "block";
+                setStatus("Select your format and quality.");
+            } catch (err) {
+                console.error(err);
+                setStatus("Error: " + err.message, "error");
+            } finally {
+                button.disabled = false;
+                button.textContent = "Fetch Formats";
+            }
+        }
+
+        function switchMediaType(type) {
+            currentMediaType = type;
+            selectedQuality = null;
+            document.getElementById("downloadButton").disabled = true;
+
+            const tabMp4 = document.getElementById("tabMp4");
+            const tabMp3 = document.getElementById("tabMp3");
+            const header = document.getElementById("qualitySectionHeader");
+            const grid = document.getElementById("qualitiesGrid");
+            grid.innerHTML = "";
+
+            if (type === "mp4") {
+                tabMp4.classList.add("active");
+                tabMp3.classList.remove("active");
+                header.textContent = "Select Video Resolution";
+
+                const qualities = (availableData && availableData.qualities) || [];
+                if (qualities.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; color:#94a3b8;">No MP4 qualities found.</div>`;
+                } else {
+                    qualities.forEach(q => {
+                        const card = document.createElement("div");
+                        card.className = "quality-card";
+                        card.textContent = q.label;
+                        card.onclick = () => selectOption(card, q.height, `Download MP4 (${q.label})`);
+                        grid.appendChild(card);
+                    });
+                }
+            } else {
+                tabMp3.classList.add("active");
+                tabMp4.classList.remove("active");
+                header.textContent = "Select Audio Bitrate";
+
+                const options = (availableData && availableData.audio_options) || [
+                    { quality: "128", label: "128 kbps (Standard)" },
+                    { quality: "192", label: "192 kbps (High)" },
+                    { quality: "320", label: "320 kbps (Best)" }
+                ];
+                options.forEach(opt => {
+                    const card = document.createElement("div");
+                    card.className = "quality-card";
+                    card.textContent = opt.label;
+                    card.onclick = () => selectOption(card, opt.quality, `Download MP3 (${opt.label.split(" ")[0]})`);
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        function selectOption(cardElement, val, buttonLabel) {
+            document.querySelectorAll(".quality-card").forEach(el => el.classList.remove("selected"));
+            cardElement.classList.add("selected");
+            selectedQuality = val;
+            const btn = document.getElementById("downloadButton");
+            btn.textContent = buttonLabel;
+            btn.disabled = false;
+        }
+
+        async function startDownload() {
+            const url = document.getElementById("videoUrl").value.trim();
+            if (!url || !selectedQuality) {
+                setStatus("Please select a quality first.", "error");
+                return;
+            }
+
+            const button = document.getElementById("downloadButton");
+            button.disabled = true;
+            setStatus(`Starting ${currentMediaType.toUpperCase()} conversion...`);
+
+            document.getElementById("progressContainer").style.display = "block";
+            setProgress(0);
+            document.getElementById("speed").textContent = "";
+            document.getElementById("eta").textContent = "";
+
+            try {
+                const response = await fetch(`${API_URL}/api/start-download`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        url: url,
+                        type: currentMediaType,
+                        quality: selectedQuality
+                    })
+                });
+
+                const data = await getJSON(response);
+                if (!data.download_id) {
+                    throw new Error("No download ID returned.");
+                }
+
+                currentDownloadId = data.download_id;
+                monitorProgress();
+            } catch (err) {
+                console.error(err);
+                setStatus("Error: " + err.message, "error");
+                button.disabled = false;
+            }
+        }
+
+        function monitorProgress() {
+            if (progressTimer) clearInterval(progressTimer);
+            progressTimer = setInterval(checkProgress, 800);
+            checkProgress();
+        }
+
+        async function checkProgress() {
+            if (!currentDownloadId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/progress/${currentDownloadId}`);
+                const data = await getJSON(response);
+
+                setProgress(data.percent);
+                document.getElementById("speed").textContent = data.speed || "";
+                document.getElementById("eta").textContent = data.eta ? `ETA ${data.eta}` : "";
+
+                if (data.status === "starting") {
+                    setStatus("Preparing download...");
+                } else if (data.status === "downloading") {
+                    setStatus(`Downloading (${data.percent}%)...`);
+                } else if (data.status === "converting") {
+                    setStatus("Processing & Converting media...");
+                } else if (data.status === "completed") {
+                    clearInterval(progressTimer);
+                    progressTimer = null;
+                    setProgress(100);
+                    setStatus("Download ready! Saving file...", "success");
+
+                    const id = currentDownloadId;
+                    currentDownloadId = null;
+                    document.getElementById("downloadButton").disabled = false;
+                    downloadFile(id);
+                } else if (data.status === "error") {
+                    clearInterval(progressTimer);
+                    progressTimer = null;
+                    setStatus("Error: " + (data.error || "Download failed."), "error");
+                    document.getElementById("downloadButton").disabled = false;
+                    currentDownloadId = null;
+                }
+            } catch (err) {
+                console.error("Progress check warning:", err);
+            }
+        }
+
+        function downloadFile(id) {
+            const link = document.createElement("a");
+            link.href = `${API_URL}/api/download-file/${id}`;
+            link.style.display = "none";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        function setProgress(val) {
+            const pct = Math.max(0, Math.min(100, Number(val) || 0));
+            document.getElementById("progressBar").style.width = pct + "%";
+            document.getElementById("percent").textContent = pct.toFixed(1) + "%";
+        }
+
+        document.getElementById("videoUrl").addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                checkFormats();
+            }
+        });
+    </script>
+</body>
+
+</html>
