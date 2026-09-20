@@ -188,7 +188,20 @@ def get_formats():
             "noplaylist": True,
             "socket_timeout": 20,
             "retries": 3,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["mweb", "ios", "android", "web"]
+                }
+            }
         }
+        if os.environ.get("YOUTUBE_COOKIES"):
+            cookie_path = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
+            with open(cookie_path, "w", encoding="utf-8") as f:
+                f.write(os.environ["YOUTUBE_COOKIES"])
+            ydl_opts["cookiefile"] = cookie_path
+        elif os.path.isfile("cookies.txt"):
+            ydl_opts["cookiefile"] = "cookies.txt"
+
         if FFMPEG_DIR:
             ydl_opts["ffmpeg_location"] = FFMPEG_DIR
 
@@ -394,6 +407,11 @@ def download_worker(download_id, video_url, media_type, quality, download_folder
                 "retries": 5,
                 "socket_timeout": 30,
                 "progress_hooks": [progress_hook],
+                "extractor_args": {
+                    "youtube": {
+                        "player_client": ["mweb", "ios", "android", "web"]
+                    }
+                },
                 "postprocessors": [{
                     "key": "FFmpegExtractAudio",
                     "preferredcodec": "mp3",
@@ -418,9 +436,20 @@ def download_worker(download_id, video_url, media_type, quality, download_folder
                 "fragment_retries": 5,
                 "socket_timeout": 30,
                 "progress_hooks": [progress_hook],
+                "extractor_args": {
+                    "youtube": {
+                        "player_client": ["mweb", "ios", "android", "web"]
+                    }
+                },
                 "continuedl": True,
                 "overwrites": True
             }
+
+        if os.environ.get("YOUTUBE_COOKIES"):
+            cookie_path = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
+            ydl_opts["cookiefile"] = cookie_path
+        elif os.path.isfile("cookies.txt"):
+            ydl_opts["cookiefile"] = "cookies.txt"
 
         if FFMPEG_DIR:
             ydl_opts["ffmpeg_location"] = FFMPEG_DIR
