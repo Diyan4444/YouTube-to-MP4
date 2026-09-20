@@ -190,7 +190,7 @@ def get_formats():
             "retries": 3,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["mweb", "ios", "android", "web"]
+                    "player_client": ["android", "ios", "mweb"]
                 }
             }
         }
@@ -409,7 +409,7 @@ def download_worker(download_id, video_url, media_type, quality, download_folder
                 "progress_hooks": [progress_hook],
                 "extractor_args": {
                     "youtube": {
-                        "player_client": ["mweb", "ios", "android", "web"]
+                        "player_client": ["android", "ios", "mweb"]
                     }
                 },
                 "postprocessors": [{
@@ -438,7 +438,7 @@ def download_worker(download_id, video_url, media_type, quality, download_folder
                 "progress_hooks": [progress_hook],
                 "extractor_args": {
                     "youtube": {
-                        "player_client": ["mweb", "ios", "android", "web"]
+                        "player_client": ["android", "ios", "mweb"]
                     }
                 },
                 "continuedl": True,
