@@ -1,6 +1,6 @@
 # ⚡ StreamVault — YouTube to MP4 & MP3 Media Utility
 
-An open-source, fully self-hosted local media utility built with Python Flask, yt-dlp, FFmpeg, and an Obsidian + Burnt Orange UI. 
+An open-source, fully self-hosted local media utility built with Python Flask, yt-dlp, FFmpeg, and an Obsidian + Burnt Orange UI.
 
 StreamVault runs entirely on your own computer on **`http://localhost:3000`** with zero external cloud or hosting dependencies.
 
@@ -27,161 +27,118 @@ StreamVault runs entirely on your own computer on **`http://localhost:3000`** wi
 
 ## 📋 Prerequisites
 
-Before installing, ensure the following software is installed on your machine:
+Before installing, ensure the following core tools are installed on your machine:
 
-1. **Python 3.10+**: [Download Python](https://www.python.org/downloads/) *(Check "Add Python to PATH" on Windows)*.
+1. **Python 3.10+**: [Download Python](https://www.python.org/downloads/) *(Ensure "Add Python to PATH" is checked on Windows)*.
 2. **FFmpeg**: [Download FFmpeg](https://ffmpeg.org/download.html) *(Required for MP3 audio extraction and 1080p+ MP4 stream merging)*.
-   - Windows: `winget install Gyan.FFmpeg`
-   - macOS: `brew install ffmpeg`
-   - Ubuntu/Debian: `sudo apt install ffmpeg`
 3. **Node.js**: [Download Node.js](https://nodejs.org/) *(Recommended: used by yt-dlp to solve YouTube player challenges)*.
 4. **Git**: [Download Git](https://git-scm.com/downloads).
 
 ---
 
-## 🚀 Quick Start
+## 📦 Installation
 
-### 1. Clone the Repository
+Clone the repository to your local computer:
+
 ```bash
 git clone https://github.com/Diyan4444/yt-to-mp4.git
 cd "yt to mp4"
 ```
 
----
-
-### Windows Setup
-
-#### Option A: One-Click Startup Script (Recommended)
-Simply double-click or run:
-```cmd
-start.bat
-```
-The script will verify your Python, Node.js, and FFmpeg installations, install missing Python packages, and start the application.
-
-#### Option B: Manual Setup
-```powershell
-python -m venv venv
-venv\Scripts\activate
-pip install -r backend/requirements.txt
-python backend/app.py
-```
+StreamVault features an automated installation system that checks for existing dependencies and installs only what is missing:
 
 ---
 
-### macOS & Linux Setup
+## 🪟 Windows Setup
 
-#### Option A: One-Click Startup Script
-```bash
-chmod +x start.sh
-./start.sh
-```
+1. Double-click or run the automated installer:
+   ```cmd
+   install.bat
+   ```
+   *The installer automatically detects Python, installs missing tools via `winget` if needed, sets up a local Python virtual environment, and installs required Python packages from `backend/requirements.txt`.*
 
-#### Option B: Manual Setup
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r backend/requirements.txt
-python3 backend/app.py
-```
+2. Start the application:
+   ```cmd
+   start.bat
+   ```
+
+3. Open **`http://localhost:3000`** in your browser.
 
 ---
 
-## 🌐 Accessing the Application
+## 🍎 macOS Setup
 
-Once started, open your web browser and navigate to:
+1. Make the setup scripts executable and run the automated installer:
+   ```bash
+   chmod +x install.sh start.sh
+   ./install.sh
+   ```
+   *The script detects installed dependencies and uses Homebrew to install missing software (such as FFmpeg or Node.js) when available, then configures a local Python virtual environment.*
 
-👉 **[http://localhost:3000](http://localhost:3000)**
+2. Start the application:
+   ```bash
+   ./start.sh
+   ```
 
-*(Press `Ctrl+C` in your terminal to stop the server).*
+3. Open **`http://localhost:3000`** in your browser.
+
+---
+
+## 🐧 Linux Setup
+
+1. Make the setup scripts executable and run the automated installer:
+   ```bash
+   chmod +x install.sh start.sh
+   ./install.sh
+   ```
+   *The installer detects your package manager (`apt`, `dnf`, `pacman`), installs missing system dependencies, creates the Python virtual environment, and installs dependencies.*
+
+2. Start the application:
+   ```bash
+   ./start.sh
+   ```
+
+3. Open **`http://localhost:3000`** in your browser.
+
+---
+
+## 🚀 Running the Application
+
+To run the application at any time:
+
+- **Windows**: `start.bat`
+- **macOS / Linux**: `./start.sh`
+
+The application will bind to:
+
+👉 **`http://localhost:3000`**
+
+To stop the server, press `Ctrl+C` in your terminal window.
 
 ---
 
 ## 📖 How to Use
 
-1. **Open** `http://localhost:3000` in your web browser.
+1. Open **`http://localhost:3000`** in your web browser.
 2. **Paste** any legitimate YouTube URL (supports `/watch?v=`, `youtu.be/`, `/shorts/`, `/embed/`).
 3. Click **Analyze** (or press Enter) to extract stream metadata and thumbnail.
 4. **Select Format**: Switch between **🎬 MP4 Video** and **🎵 MP3 Audio**.
 5. **Select Quality**: Choose your desired video resolution (up to 4K) or MP3 bitrate (128–320 kbps).
 6. Click **Generate MP4** or **Generate MP3**.
-7. Once processing completes, your browser will automatically download the file to your computer.
-
----
-
-## 📁 Project Structure
-
-```text
-yt-to-mp4/
-├── backend/
-│   ├── app.py              # Main Flask application, SQLite job manager, streaming
-│   └── requirements.txt    # Python dependencies (Flask, Flask-Cors, yt-dlp, yt-dlp-ejs)
-├── frontend/
-│   └── index.html          # Single-page UI (Obsidian + Burnt Orange, Vanilla JS)
-├── tests/
-│   └── test_app.py         # Automated unit & integration tests
-├── Dockerfile              # Optional self-hosted container build
-├── start.bat               # Windows one-click startup script
-├── start.sh                # macOS/Linux startup script
-├── .gitignore              # Git ignore rules
-├── LICENSE                 # MIT License
-└── README.md               # Documentation
-```
-
----
-
-## 🐳 Docker (Optional Local Deployment)
-
-You can also run StreamVault locally via Docker:
-
-```bash
-docker build -t streamvault .
-docker run -p 3000:3000 streamvault
-```
-
-Then visit `http://localhost:3000`.
-
----
-
-## 🔧 Troubleshooting
-
-| Issue | Cause | Solution |
-|---|---|---|
-| **Port 3000 is already in use** | Another process is listening on port 3000. | Stop the conflicting application or terminate it via PowerShell: `Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess \| Stop-Process` |
-| **FFmpeg not detected** | FFmpeg is not in your system PATH. | Install via `winget install Gyan.FFmpeg` (Windows) or `brew install ffmpeg` (macOS), then restart your terminal. |
-| **Node.js not detected** | Node.js is missing. | Install Node.js from [nodejs.org](https://nodejs.org/) to enable `yt-dlp-ejs` player challenge solving. |
-| **Video extraction failed** | Network timeout or outdated yt-dlp. | Run `pip install --upgrade yt-dlp yt-dlp-ejs` to get the latest YouTube extractors. |
-| **Download stuck / cancelled** | User cancelled or connection dropped. | Click **Retry** on the error alert to re-queue the job. |
+7. Once processing completes, your browser will automatically save the file directly to your local download directory.
 
 ---
 
 ## 🛠️ Technology Stack
 
 - **Frontend**: HTML5, Modern CSS Variables, Vanilla JavaScript (Zero external JS frameworks).
-- **Backend**: Python 3, Flask, Gunicorn.
+- **Backend**: Python 3, Flask.
 - **Media Engine**: [yt-dlp](https://github.com/yt-dlp/yt-dlp), [yt-dlp-ejs](https://github.com/yt-dlp/yt-dlp-ejs), [FFmpeg](https://ffmpeg.org/).
-- **Database & Job State**: Embedded SQLite (WAL mode, multi-worker safe).
-- **Design System**: Obsidian (`#111111`) + Burnt Orange (`#E58A3A`) with Space Grotesk and Inter fonts.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Run tests to ensure no regressions: `python -m unittest discover tests`.
-4. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-5. Push to the branch (`git push origin feature/AmazingFeature`).
-6. Open a Pull Request.
+- **Database & Job State**: Embedded SQLite (WAL mode, persistent concurrency control).
+- **Design System**: Obsidian (`#111111`) + Burnt Orange (`#E58A3A`) with Space Grotesk and Inter typography.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
-## ⚠️ Disclaimer
-
-StreamVault is intended for **personal and educational use only**. Users must possess the rights or permissions required to download and store media and comply with YouTube's Terms of Service and applicable copyright laws.
+This project is licensed under the **Apache License, Version 2.0** — see the [LICENSE](LICENSE) file or visit [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0) for details.
