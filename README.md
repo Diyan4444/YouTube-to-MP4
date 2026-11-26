@@ -19,11 +19,6 @@ StreamVault runs entirely on your own computer on **`http://localhost:3000`** wi
 
 ---
 
-## 📸 Screenshots
-
-*(Placeholder: Add screenshots of the Obsidian + Burnt Orange UI here)*
-
----
 
 ## 📋 Prerequisites
 
