@@ -22,6 +22,13 @@ if not exist "venv\Scripts\python.exe" (
     set /p run_install="Would you like to run install.bat now? (Y/N): "
     if /i "!run_install!"=="Y" (
         call install.bat
+        if !errorlevel! neq 0 (
+            echo.
+            echo [ERROR] Installation failed with exit code !errorlevel!.
+            echo StreamVault cannot start until dependencies are installed properly.
+            pause
+            exit /b !errorlevel!
+        )
         if not exist "venv\Scripts\python.exe" (
             echo.
             echo [ERROR] Virtual environment installation was not completed.

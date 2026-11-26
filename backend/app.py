@@ -84,47 +84,82 @@ METADATA_CACHE_TTL = 300  # 5 minutes
 # ============================================================
 
 def resolve_ffmpeg():
-    """Dynamically resolve ffmpeg directory/executable for Windows, Linux, and Cloud environments."""
+    """
+    Dynamically and efficiently resolve the FFmpeg & FFprobe directory.
+    Priority:
+    1. Explicit environment variable override (FFMPEG_PATH / FFMPEG_LOCATION).
+    2. System PATH via shutil.which('ffmpeg') and shutil.which('ffprobe').
+    3. Targeted Windows WinGet / LocalAppData installation directories (fast, non-recursive).
+    4. Standard Program Files installation paths.
+    """
     # 1. Environment variable override
     env_ffmpeg = os.environ.get("FFMPEG_PATH") or os.environ.get("FFMPEG_LOCATION")
     if env_ffmpeg:
-        if os.path.isdir(env_ffmpeg):
-            return env_ffmpeg
-        if os.path.isfile(env_ffmpeg):
-            return os.path.dirname(env_ffmpeg)
+        target_dir = env_ffmpeg if os.path.isdir(env_ffmpeg) else os.path.dirname(env_ffmpeg)
+        if os.path.isfile(os.path.join(target_dir, "ffmpeg.exe" if os.name == "nt" else "ffmpeg")):
+            return target_dir
 
-    # 2. System PATH via shutil.which
+    # 2. System PATH via shutil.which (checks ffmpeg & ffprobe independently)
     system_ffmpeg = shutil.which("ffmpeg")
+    system_ffprobe = shutil.which("ffprobe")
     if system_ffmpeg:
-        return os.path.dirname(system_ffmpeg)
+        ffmpeg_dir = os.path.dirname(system_ffmpeg)
+        # Prefer directory containing both ffmpeg and ffprobe from the same build
+        if system_ffprobe and os.path.dirname(system_ffprobe).lower() == ffmpeg_dir.lower():
+            return ffmpeg_dir
+        return ffmpeg_dir
 
-    # 3. Dynamic Windows WinGet / LocalAppData detection (for any user)
-    local_app_data = os.environ.get("LOCALAPPDATA")
-    if local_app_data:
-        winget_packages = os.path.join(local_app_data, "Microsoft", "WinGet", "Packages")
-        if os.path.isdir(winget_packages):
-            for root, dirs, files in os.walk(winget_packages):
-                if "ffmpeg.exe" in files:
-                    return root
+    if os.name == "nt":
+        # 3. Targeted Windows WinGet package search (checks specific known directories without full tree walk)
+        local_app_data = os.environ.get("LOCALAPPDATA")
+        if local_app_data:
+            winget_root = os.path.join(local_app_data, "Microsoft", "WinGet", "Packages")
+            if os.path.isdir(winget_root):
+                try:
+                    for entry in os.scandir(winget_root):
+                        if entry.is_dir() and "ffmpeg" in entry.name.lower():
+                            for sub in os.scandir(entry.path):
+                                if sub.is_dir():
+                                    bin_dir = os.path.join(sub.path, "bin")
+                                    if os.path.isfile(os.path.join(bin_dir, "ffmpeg.exe")):
+                                        return bin_dir
+                                    if os.path.isfile(os.path.join(sub.path, "ffmpeg.exe")):
+                                        return sub.path
+                except OSError:
+                    pass
 
-    # 4. Standard Program Files locations
-    for pf in ["ProgramFiles", "ProgramFiles(x86)"]:
-        pf_dir = os.environ.get(pf)
-        if pf_dir:
-            ffmpeg_standard = os.path.join(pf_dir, "FFmpeg", "bin")
-            if os.path.isfile(os.path.join(ffmpeg_standard, "ffmpeg.exe")):
-                return ffmpeg_standard
+        # 4. Standard Program Files locations
+        for pf in ["ProgramFiles", "ProgramFiles(x86)"]:
+            pf_dir = os.environ.get(pf)
+            if pf_dir:
+                for candidate in [os.path.join(pf_dir, "FFmpeg", "bin"), os.path.join(pf_dir, "FFmpeg")]:
+                    if os.path.isfile(os.path.join(candidate, "ffmpeg.exe")):
+                        return candidate
 
     return None
 
-FFMPEG_DIR = resolve_ffmpeg()
+_CACHED_FFMPEG_DIR = None
+_CACHED_FFMPEG_RESOLVED = False
+
+def get_ffmpeg_dir():
+    global _CACHED_FFMPEG_DIR, _CACHED_FFMPEG_RESOLVED
+    if not _CACHED_FFMPEG_RESOLVED:
+        _CACHED_FFMPEG_DIR = resolve_ffmpeg()
+        _CACHED_FFMPEG_RESOLVED = True
+    return _CACHED_FFMPEG_DIR
+
+FFMPEG_DIR = get_ffmpeg_dir()
 FFMPEG_AVAILABLE = bool(
     (FFMPEG_DIR and os.path.isfile(os.path.join(FFMPEG_DIR, "ffmpeg.exe" if os.name == "nt" else "ffmpeg")))
     or shutil.which("ffmpeg")
 )
+FFPROBE_AVAILABLE = bool(
+    (FFMPEG_DIR and os.path.isfile(os.path.join(FFMPEG_DIR, "ffprobe.exe" if os.name == "nt" else "ffprobe")))
+    or shutil.which("ffprobe")
+)
 
 if FFMPEG_DIR:
-    app.logger.info(f"FFmpeg detected at: {FFMPEG_DIR}")
+    app.logger.info(f"FFmpeg detected at: {FFMPEG_DIR} (ffprobe available: {FFPROBE_AVAILABLE})")
 else:
     app.logger.warning("FFmpeg was not detected in PATH or standard locations.")
 
