@@ -286,7 +286,11 @@ def get_client_ip():
 def serve_index():
     index_file = os.path.join(FRONTEND_DIR, "index.html")
     if os.path.exists(index_file):
-        return send_file(index_file)
+        resp = send_file(index_file, max_age=0)
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+        resp.headers["Expires"] = "0"
+        return resp
     return jsonify({
         "status": "online",
         "service": "YouTube to MP4 & MP3 Utility",
@@ -297,7 +301,9 @@ def serve_index():
 def serve_static(filename):
     safe_path = os.path.abspath(os.path.join(FRONTEND_DIR, filename))
     if safe_path.startswith(FRONTEND_DIR) and os.path.exists(safe_path) and os.path.isfile(safe_path):
-        return send_from_directory(FRONTEND_DIR, filename)
+        resp = send_from_directory(FRONTEND_DIR, filename, max_age=0)
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return resp
     return jsonify({"error": "File not found."}), 404
 
 @app.route("/api/health", methods=["GET"])

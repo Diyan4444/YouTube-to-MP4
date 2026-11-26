@@ -2,14 +2,18 @@
 setlocal enabledelayedexpansion
 title StreamVault - YouTube to MP4 & MP3 Media Utility
 
+:: Guarantee execution from the directory where start.bat resides
+cd /d "%~dp0"
+
 echo =====================================================================
 echo  StreamVault - YouTube to MP4 & MP3 Local Media Utility
 echo =====================================================================
+echo [*] Root Directory: %CD%
 echo.
 
 :: 1. Check if virtual environment exists
 if not exist "venv\Scripts\python.exe" (
-    echo [WARNING] Virtual environment not found.
+    echo [WARNING] Virtual environment not found in %CD%\venv.
     echo Please run 'install.bat' first to install required dependencies.
     echo.
     set /p run_install="Would you like to run install.bat now? (Y/N): "
