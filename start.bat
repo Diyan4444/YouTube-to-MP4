@@ -1,12 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
-title StreamVault - YouTube to MP4 & MP3 Media Utility
+title StreamVault - YouTube to MP4 ^& MP3 Media Utility
+
+:: Guarantee execution from the directory where start.bat resides
+cd /d "%~dp0"
 
 :: Guarantee execution from the directory where start.bat resides
 cd /d "%~dp0"
 
 echo =====================================================================
-echo  StreamVault - YouTube to MP4 & MP3 Local Media Utility
+echo  StreamVault - YouTube to MP4 ^& MP3 Local Media Utility
 echo =====================================================================
 echo [*] Root Directory: %CD%
 echo.
@@ -19,20 +22,27 @@ if not exist "venv\Scripts\python.exe" (
     set /p run_install="Would you like to run install.bat now? (Y/N): "
     if /i "!run_install!"=="Y" (
         call install.bat
+        if not exist "venv\Scripts\python.exe" (
+            echo.
+            echo [ERROR] Virtual environment installation was not completed.
+            echo Please run install.bat directly to resolve any setup issues.
+            pause
+            exit /b 1
+        )
     ) else (
         exit /b 1
     )
 )
 
 :: 2. Activate virtual environment
-call venv\Scripts\activate.bat
+call "venv\Scripts\activate.bat"
 
 :: 3. Launch Application on port 3000
 echo [*] Starting StreamVault on http://localhost:3000 ...
 echo [*] Press Ctrl+C in this terminal window to stop the application.
 echo.
 
-python backend\app.py
+python "backend\app.py"
 
 if %errorlevel% neq 0 (
     echo.

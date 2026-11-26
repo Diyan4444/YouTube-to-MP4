@@ -98,14 +98,22 @@ def resolve_ffmpeg():
     if system_ffmpeg:
         return os.path.dirname(system_ffmpeg)
 
-    # 3. Known fallback Windows winget/local paths (development only)
-    win_winget = (
-        r"C:\Users\Diyan\AppData\Local\Microsoft\WinGet\Packages"
-        r"\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe"
-        r"\ffmpeg-9.0-full_build\bin"
-    )
-    if os.path.isdir(win_winget):
-        return win_winget
+    # 3. Dynamic Windows WinGet / LocalAppData detection (for any user)
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        winget_packages = os.path.join(local_app_data, "Microsoft", "WinGet", "Packages")
+        if os.path.isdir(winget_packages):
+            for root, dirs, files in os.walk(winget_packages):
+                if "ffmpeg.exe" in files:
+                    return root
+
+    # 4. Standard Program Files locations
+    for pf in ["ProgramFiles", "ProgramFiles(x86)"]:
+        pf_dir = os.environ.get(pf)
+        if pf_dir:
+            ffmpeg_standard = os.path.join(pf_dir, "FFmpeg", "bin")
+            if os.path.isfile(os.path.join(ffmpeg_standard, "ffmpeg.exe")):
+                return ffmpeg_standard
 
     return None
 
