@@ -20,10 +20,18 @@ import yt_dlp
 FRONTEND_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "frontend")
 )
+# Fallback if running inside a container or nested working directory
+if not os.path.exists(FRONTEND_DIR):
+    alt_frontend = os.path.abspath("frontend")
+    if os.path.exists(alt_frontend):
+        FRONTEND_DIR = alt_frontend
 
 app = Flask(__name__, static_folder=FRONTEND_DIR)
-# Restrict CORS to sane defaults while allowing cross-origin if API consumed from dev clients
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Restrict CORS to sane defaults while exposing headers for cross-origin file downloads
+CORS(app, resources={r"/api/*": {
+    "origins": "*",
+    "expose_headers": ["Content-Disposition", "Content-Length", "X-Content-Type-Options"]
+}})
 
 # Request size limit: 1MB maximum for API JSON payloads
 app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
