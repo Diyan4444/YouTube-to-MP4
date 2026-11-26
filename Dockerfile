@@ -4,7 +4,7 @@ FROM python:3.11-slim
 # Prevent Python from writing .pyc and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=5000
+ENV PORT=3000
 
 # Install FFmpeg, curl, unzip, and Node.js for yt-dlp JS runtime extraction
 RUN apt-get update && \
@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -U pip setuptools && \
 COPY backend /app/backend
 COPY frontend /app/frontend
 
-EXPOSE 5000
+EXPOSE 3000
 
-# Start server using gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "4", "--timeout", "300", "--chdir", "backend", "app:app"]
+# Start server using gunicorn on port 3000
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "1", "--threads", "8", "--timeout", "300", "--chdir", "backend", "app:app"]

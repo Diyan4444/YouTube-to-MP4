@@ -1,5 +1,7 @@
 import os
 import re
+import sys
+import socket
 import uuid
 import tempfile
 import threading
@@ -963,12 +965,29 @@ cleanup_thread.start()
 # ENTRY POINT
 # ============================================================
 
+def is_port_in_use(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex((host, port)) == 0
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    print("=" * 60)
-    print(f"YouTube to MP4 & MP3 Server starting on port {port}")
-    print(f"FFmpeg available: {FFMPEG_AVAILABLE} (Dir: {FFMPEG_DIR})")
-    print(f"Max Concurrent Downloads: {MAX_ACTIVE_DOWNLOADS}")
-    print(f"Job Database: {DB_PATH}")
-    print("=" * 60)
-    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+    port = 3000
+    host = "127.0.0.1"
+
+    if is_port_in_use(host, port):
+        print("=" * 65)
+        print(f"[ERROR] Port {port} is already in use by another application.")
+        print(f"Please stop the process using port {port} before launching,")
+        print(f"or run: Get-Process -Id (Get-NetTCPConnection -LocalPort {port}).OwningProcess | Stop-Process")
+        print("=" * 65)
+        sys.exit(1)
+
+    print("=" * 65)
+    print(" StreamVault — YouTube to MP4 & MP3 Local Media Utility")
+    print(f" Local URL: http://localhost:{port} or http://{host}:{port}")
+    print(f" FFmpeg Status: {'Available (' + str(FFMPEG_DIR) + ')' if FFMPEG_AVAILABLE else 'NOT DETECTED (Audio extraction will fail)'}")
+    print(f" Media Storage: {DOWNLOAD_ROOT}")
+    print(" Press Ctrl+C in this terminal to stop the server.")
+    print("=" * 65)
+
+    app.run(host=host, port=port, debug=False, threaded=True)
